@@ -25,7 +25,7 @@
  *****************************************************************************/
 
 /**
- * @file HardWire.cpp
+ * @file TwoWire.cpp
  * @author Trystan Jones <crenn6977@gmail.com>
  * @brief Wire library, uses the hardware I2C available in the Maple to
  *        interact with I2C slave devices.
@@ -38,7 +38,7 @@
 
 #include "Wire.h"
 
-uint8 HardWire::process(uint8 stop) {
+uint8 TwoWire::process(uint8 stop) {
     int8 res = i2c_master_xfer(sel_hard, &itc_msg, 1, 0);
     if (res == I2C_ERROR_PROTOCOL) {
         if (sel_hard->error_flags & I2C_SR1_AF) { /* NACK */
@@ -50,18 +50,19 @@ uint8 HardWire::process(uint8 stop) {
             res = EOTHER;
         }
         i2c_disable(sel_hard);
-        i2c_master_enable(sel_hard, (I2C_BUS_RESET | dev_flags));
+        i2c_master_enable(sel_hard, dev_flags, frequency);
     }
     return res;
 }
 
-uint8 HardWire::process(){
+uint8 TwoWire::process(){
 	return process(true);
 }
 
 // TODO: Add in Error Handling if devsel is out of range for other Maples
-HardWire::HardWire(uint8 dev_sel, uint8 flags) {
-    if (dev_sel == 1) {
+TwoWire::TwoWire(uint8 dev_sel, uint8 flags, uint32 freq) {
+    
+	if (dev_sel == 1) {
         sel_hard = I2C1;
     } else if (dev_sel == 2) {
         sel_hard = I2C2;
@@ -69,35 +70,36 @@ HardWire::HardWire(uint8 dev_sel, uint8 flags) {
         ASSERT(1);
     }
     dev_flags = flags;
+
+	if (freq == 100000 && (flags & I2C_FAST_MODE))  // compatibility patch
+		frequency = 400000;
+	else
+		frequency = freq;
+
 }
 
-HardWire::~HardWire() {
+TwoWire::~TwoWire() {
     i2c_disable(sel_hard);
     sel_hard = 0;
 }
 
-void HardWire::begin(uint8 self_addr) {
-    i2c_master_enable(sel_hard, dev_flags);
+void TwoWire::begin(uint8 self_addr) {
+    i2c_master_enable(sel_hard, dev_flags, frequency);
 }
 
-void HardWire::end() {
+void TwoWire::end() {
     i2c_disable(sel_hard);
     sel_hard = 0;
 }
 
-void HardWire::setClock(uint32_t frequencyHz)
+void TwoWire::setClock(uint32_t frequencyHz)
 {
-	switch(frequencyHz)
-	{
-		case 400000:
-			dev_flags |= I2C_FAST_MODE;// set FAST_MODE bit
-			break;
-		case 100000:
-		default:
-			dev_flags &= ~I2C_FAST_MODE;// clear FAST_MODE bit
-			break;
-	}
 	
+	if (sel_hard->regs->CR1 & I2C_CR1_PE){
+		frequency = frequencyHz;
+	    i2c_disable(sel_hard);
+	    i2c_master_enable(sel_hard, dev_flags, frequency);
+	}
 }
 
-HardWire Wire(1);
+TwoWire Wire(1);

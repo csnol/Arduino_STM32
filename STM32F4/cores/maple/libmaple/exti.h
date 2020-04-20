@@ -43,16 +43,24 @@ extern "C"{
 
 /** EXTI register map type */
 typedef struct exti_reg_map {
-    __io uint32 IMR;   /**< Interrupt mask register */
-    __io uint32 EMR;   /**< Event mask register */
-    __io uint32 RTSR;  /**< Rising trigger selection register */
-    __io uint32 FTSR;  /**< Falling trigger selection register */
-    __io uint32 SWIER; /**< Software interrupt event register */
-    __io uint32 PR;    /**< Pending register */
+    __IO uint32 IMR;   /**< Interrupt mask register */
+    __IO uint32 EMR;   /**< Event mask register */
+    __IO uint32 RTSR;  /**< Rising trigger selection register */
+    __IO uint32 FTSR;  /**< Falling trigger selection register */
+    __IO uint32 SWIER; /**< Software interrupt event register */
+    __IO uint32 PR;    /**< Pending register */
 } exti_reg_map;
 
 /** EXTI register map base pointer */
 #define EXTI_BASE                       ((struct exti_reg_map*)0x40013C00)
+
+
+#define EXTI_RTC_ALARM      BIT(17)
+#define EXTI_RTC_WAKEUP     BIT(22)
+#define EXTI_RTC_TAMPSTAMP  BIT(21)
+
+
+
 
 /** External interrupt trigger mode */
 typedef enum exti_trigger_mode {

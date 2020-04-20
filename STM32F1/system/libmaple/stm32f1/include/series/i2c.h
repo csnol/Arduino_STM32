@@ -59,13 +59,15 @@ extern i2c_dev* const I2C2;
  * For internal use
  */
 
-static inline uint32 _i2c_bus_clk(i2c_dev *dev) {
+static inline uint32 _i2c_bus_clk(i2c_dev *dev __attribute__((unused))) {
     /* Both I2C peripherals are on APB1 */
     return STM32_PCLK1 / (1000 * 1000);
 }
 
+#ifndef _I2C_HAVE_IRQ_FIXUP     // Allow disabling of the fixup via external define
 #define _I2C_HAVE_IRQ_FIXUP 1
 void _i2c_irq_priority_fixup(i2c_dev *dev);
+#endif
 
 /*
  * Deprecated functionality

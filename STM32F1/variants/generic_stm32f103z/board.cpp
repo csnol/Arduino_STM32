@@ -77,7 +77,6 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
     uint8 gpio_bit;             Pin's GPIO port bit. 
     uint8 timer_channel;        Timer channel, or 0 if none. 
     uint8 adc_channel;          Pin ADC channel, or ADCx if none. 
-	uint8 pinMode; 				mode specific by pinMode call (Roger Clark added to optimize compatibility with Arduino API
 */
 
     {&gpioa, &timer2, &adc1,  0, 1,    0}, /* PA0 */
@@ -218,17 +217,8 @@ extern const uint8 boardUsedPins[BOARD_NR_USED_PINS] __FLASH__ = {
     BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
 };
 
-
-#ifdef SERIAL_USB
-	DEFINE_HWSERIAL(Serial1, 1);
-	DEFINE_HWSERIAL(Serial2, 2);
-	DEFINE_HWSERIAL(Serial3, 3);
-	DEFINE_HWSERIAL_UART(Serial4, 4);
-	DEFINE_HWSERIAL_UART(Serial5, 5);
-#else
-	DEFINE_HWSERIAL(Serial, 1);
-	DEFINE_HWSERIAL(Serial1, 2);
-	DEFINE_HWSERIAL(Serial2, 3);
-	DEFINE_HWSERIAL_UART(Serial3, 4);
-	DEFINE_HWSERIAL_UART(Serial4, 5);
-#endif
+DEFINE_HWSERIAL(Serial1, 1);
+DEFINE_HWSERIAL(Serial2, 2);
+DEFINE_HWSERIAL(Serial3, 3);
+DEFINE_HWSERIAL_UART(Serial4, 4);
+DEFINE_HWSERIAL_UART(Serial5, 5);

@@ -25,7 +25,7 @@
  *****************************************************************************/
 
 /**
- * @file HardWire.h
+ * @file Wire.h
  * @author Trystan Jones <crenn6977@gmail.com>
  * @brief Wire library, uses the hardware I2C available in the Maple to
  *        interact with I2C slave devices.
@@ -36,43 +36,48 @@
  * users easy interaction with the I2C Hardware in a familiar method.
  */
 
-#ifndef _HARDWIRE_H_
-#define _HARDWIRE_H_
+#ifndef _TWOWIRE_H_
+#define _TWOWIRE_H_
 
-#include "WireBase.h"
+#include "utility/WireBase.h"
 #include "wirish.h"
 #include <libmaple/i2c.h>
 
-class HardWire : public WireBase {
+class TwoWire : public WireBase {
 private:
     i2c_dev* sel_hard;
     uint8    dev_flags;
+	uint32	frequency; //new variable to store i2c frequency
 protected:
     /*
      * Processes the incoming I2C message defined by WireBase to the
      * hardware. If an error occured, restart the I2C device.
      */
-    uint8 process(uint8);
+    uint8 process(uint8 stop);
     uint8 process();
 public:
     /*
      * Check if devsel is within range and enable selected I2C interface with
-     * passed flags
+     * passed flags and frequency.
+	 *(frequency tested go up to 1.2Mhz @F_CPU 72Mhz with capable slaves)
      */
-    HardWire(uint8, uint8 = 0);
+    TwoWire(uint8 dev_sel, uint8 flags = 0, uint32 freq = 100000);
 	
 	/*
 	 * Shuts down (disables) the hardware I2C
 	 */
 	void end();
 
+	/*
+	* Sets the hardware I2C clock
+	*/
 	void setClock(uint32_t frequencyHz);
     /*
      * Disables the I2C device and remove the device address.
      */
-    ~HardWire();
+    ~TwoWire();
 
-    void begin(uint8 = 0x00);
+    void begin(uint8 self_addr = 0x00);
 };
-extern HardWire Wire;
-#endif // _HARDWIRE_H_
+extern TwoWire Wire;
+#endif // _TWOWIRE_H_

@@ -30,46 +30,29 @@
  */
 
 #include "bkp.h"
-#include "pwr.h"
-#include "rcc.h"
 #include "bitband.h"
 
-static inline __io uint32* data_register(uint8 reg);
 
-bkp_dev bkp = {
-    .regs = BKP_BASE,
-};
-/** Backup device. */
-const bkp_dev *BKP = &bkp;
-
-/**
- * @brief Initialize backup interface.
- *
- * Enables the power and backup interface clocks, and resets the
- * backup device.
+/*
+ * Data register memory layout is not contiguous. It's split up from
+ * 1--NR_LOW_DRS, beginning at BKP->DR1, through to
+ * (NR_LOW_DRS+1)--BKP_NR_DATA_REGS, beginning at BKP->DR11.
  */
-void bkp_init(void) {
-    /* Don't call pwr_init(), or you'll reset the device.  We just
-     * need the clock. */
-    rcc_clk_enable(RCC_PWR);
-    rcc_clk_enable(RCC_BKP);
-    rcc_reset_dev(RCC_BKP);
-}
+static __IO uint32* data_register(uint8 reg)
+{
+    if ( reg==0 || reg > BKP_NR_DATA_REGS) {
+        return 0;
+    }
 
-/**
- * Enable write access to the backup registers.  Backup interface must
- * be initialized for subsequent register writes to work.
- * @see bkp_init()
- */
-void bkp_enable_writes(void) {
-    *bb_perip(&PWR_BASE->CR, PWR_CR_DBP) = 1;
-}
-
-/**
- * Disable write access to the backup registers.
- */
-void bkp_disable_writes(void) {
-    *bb_perip(&PWR_BASE->CR, PWR_CR_DBP) = 0;
+#if BKP_NR_DATA_REGS == NR_LOW_DRS
+    return (uint32*)BKP + reg;
+#else
+    if (reg <= NR_LOW_DRS) {
+        return (uint32*)BKP + reg;
+    } else {
+        return (uint32*)&(BKP->DR11) + (reg - NR_LOW_DRS - 1);
+    }
+#endif
 }
 
 /**
@@ -78,7 +61,7 @@ void bkp_disable_writes(void) {
  *            medium-density devices, 42 on high-density devices).
  */
 uint16 bkp_read(uint8 reg) {
-    __io uint32* dr = data_register(reg);
+    __IO uint32* dr = data_register(reg);
     if (!dr) {
         ASSERT(0);                  /* nonexistent register */
         return 0;
@@ -97,33 +80,10 @@ uint16 bkp_read(uint8 reg) {
  * @see bkp_enable_writes()
  */
 void bkp_write(uint8 reg, uint16 val) {
-    __io uint32* dr = data_register(reg);
+    __IO uint32* dr = data_register(reg);
     if (!dr) {
         ASSERT(0);                  /* nonexistent register */
         return;
     }
     *dr = (uint32)val;
-}
-
-/*
- * Data register memory layout is not contiguous. It's split up from
- * 1--NR_LOW_DRS, beginning at BKP_BASE->DR1, through to
- * (NR_LOW_DRS+1)--BKP_NR_DATA_REGS, beginning at BKP_BASE->DR11.
- */
-#define NR_LOW_DRS 10
-
-static inline __io uint32* data_register(uint8 reg) {
-    if (reg < 1 || reg > BKP_NR_DATA_REGS) {
-        return 0;
-    }
-
-#if BKP_NR_DATA_REGS == NR_LOW_DRS
-    return (uint32*)BKP_BASE + reg;
-#else
-    if (reg <= NR_LOW_DRS) {
-        return (uint32*)BKP_BASE + reg;
-    } else {
-        return (uint32*)&(BKP_BASE->DR11) + (reg - NR_LOW_DRS - 1);
-    }
-#endif
 }

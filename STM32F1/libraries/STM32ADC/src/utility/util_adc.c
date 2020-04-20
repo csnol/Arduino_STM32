@@ -7,7 +7,7 @@
     Interrupt function.
     This handles Analog watchdog and ADC1 and 2.
 */
-extern volatile unsigned int adc_result = 0;
+extern volatile unsigned int adc_result;
 
 /*
     Starts a single conversion in one channel previously defined.
@@ -137,8 +137,8 @@ void adc_dma_enable(adc_dev * dev) {
   bb_peri_set_bit(&dev->regs->CR2, ADC_CR2_DMA_BIT, 1);
 }
 
-uint8 poll_adc_convert(adc_dev *dev) {
-  return bb_peri_get_bit(dev->regs->SR, ADC_SR_EOC_BIT);
+uint8 poll_adc_convert(adc_dev * dev) {
+  return bb_peri_get_bit(&dev->regs->SR, ADC_SR_EOC_BIT);
   }
 
 

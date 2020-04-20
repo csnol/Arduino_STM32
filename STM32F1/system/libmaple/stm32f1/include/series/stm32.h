@@ -89,6 +89,13 @@ extern "C" {
 #   define STM32_F1_LINE                STM32_F1_LINE_PERFORMANCE
 #   define STM32_MEDIUM_DENSITY
 
+#elif defined(MCU_STM32F103C6)
+#   define STM32_NR_GPIO_PORTS          3
+#   define STM32_SRAM_END               ((void*)0x20002800)
+#   define NR_GPIO_PORTS                STM32_NR_GPIO_PORTS
+#   define STM32_F1_LINE                STM32_F1_LINE_PERFORMANCE
+#   define STM32_MEDIUM_DENSITY // this is actually a low density device, but it is very close to the C8
+
 #elif defined(MCU_STM32F103CB)
 #   define STM32_F1_LINE                STM32_F1_LINE_PERFORMANCE
     /* This STM32_NR_GPIO_PORTS is not true, but only pins 0 and
@@ -185,12 +192,20 @@ extern "C" {
 #    elif defined(STM32_HIGH_DENSITY)
 #       define STM32_NR_INTERRUPTS      60
 #       define STM32_TIMER_MASK         0x1FE /* TIMER1--TIMER8 */
-#       define STM32_HAVE_FSMC          1
+#       if STM32_NR_GPIO_PORTS > 4
+#           define STM32_HAVE_FSMC      1
+#       else
+#           define STM32_HAVE_FSMC      0
+#       endif
 #       define STM32_HAVE_DAC           1
 #    elif defined(STM32_XL_DENSITY)
 #       define STM32_NR_INTERRUPTS      60
 #       define STM32_TIMER_MASK         0x7FFE /* TIMER1--TIMER14 */
-#       define STM32_HAVE_FSMC          1
+#       if STM32_NR_GPIO_PORTS > 4
+#           define STM32_HAVE_FSMC      1
+#       else
+#           define STM32_HAVE_FSMC      0
+#       endif
 #       define STM32_HAVE_DAC           1
 #    endif
 

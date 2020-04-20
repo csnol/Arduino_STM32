@@ -158,14 +158,9 @@ private:
 
 
 /*
-    Should move this to within the class once tested out, just for tidyness
-*/
-static uint8_t ff = 0XFF;
-static void (*_spi1_this);
-static void (*_spi2_this);
-#if BOARD_NR_SPI >= 3
-static void (*_spi3_this);
-#endif
+ * Kept for compat.
+ */
+static const uint8_t ff = 0XFF;
 
 /**
  * @brief Wirish SPI interface.
@@ -278,7 +273,7 @@ public:
      * @param buffer Bytes/words to transmit.
      * @param length Number of bytes/words in buffer to transmit.
      */
-    void write(void * buffer, uint32 length);
+    void write(const void * buffer, uint32 length);
 
     /**
      * @brief Transmit a byte, then return the next unread byte.
@@ -301,8 +296,8 @@ public:
      * @param receiveBuf buffer Bytes to save received data. 
      * @param length Number of bytes in buffer to transmit.
 	 */
-    uint8 dmaTransfer(void * transmitBuf, void * receiveBuf, uint16 length);
-    void dmaTransferSet(void *transmitBuf, void *receiveBuf);
+    uint8 dmaTransfer(const void * transmitBuf, void * receiveBuf, uint16 length);
+    void dmaTransferSet(const void *transmitBuf, void *receiveBuf);
     uint8 dmaTransferRepeat(uint16 length);
 
 	/**
@@ -315,11 +310,11 @@ public:
      * @param length Number of bytes in buffer to transmit.
 	 * @param minc Set to use Memory Increment mode, clear to use Circular mode.
      */
-    uint8 dmaSend(void * transmitBuf, uint16 length, bool minc = 1);
-    void dmaSendSet(void * transmitBuf, bool minc);
+    uint8 dmaSend(const void * transmitBuf, uint16 length, bool minc = 1);
+    void dmaSendSet(const void * transmitBuf, bool minc);
     uint8 dmaSendRepeat(uint16 length);
 
-    uint8 dmaSendAsync(void * transmitBuf, uint16 length, bool minc = 1);
+    uint8 dmaSendAsync(const void * transmitBuf, uint16 length, bool minc = 1);
     /*
      * Pin accessors
      */
@@ -411,8 +406,12 @@ private:
 
     void EventCallback(void);
 
+    #if BOARD_NR_SPI >= 1
     static void _spi1EventCallback(void);
+    #endif
+    #if BOARD_NR_SPI >= 2
     static void _spi2EventCallback(void);
+    #endif
     #if BOARD_NR_SPI >= 3
     static void _spi3EventCallback(void);
     #endif
@@ -425,6 +424,14 @@ private:
 	*/
 };
 
+/**
+* @brief Waits unti TXE (tx empy) flag set and BSY (busy) flag unset.
+*/
+static inline void waitSpiTxEnd(spi_dev *spi_d)
+{
+    while (spi_is_tx_empty(spi_d) == 0); // wait until TXE=1
+    while (spi_is_busy(spi_d) != 0); // wait until BSY=0
+}
 
 extern SPIClass SPI;//(1);// dummy params
 #endif

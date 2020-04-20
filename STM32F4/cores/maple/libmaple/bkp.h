@@ -32,81 +32,74 @@
 #ifndef _BKP_H_
 #define _BKP_H_
 
-#include "libmaple.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(STM32_MEDIUM_DENSITY)
-#define BKP_NR_DATA_REGS 10
-#elif defined(STM32_HIGH_DENSITY)
+#include "libmaple.h"
+#include "pwr.h"
+#include "rcc.h"
+
+
+#define NR_LOW_DRS 10
 #define BKP_NR_DATA_REGS 42
-#endif
 
 /** Backup peripheral register map type. */
 typedef struct bkp_reg_map {
-    const uint32 RESERVED1;     ///< Reserved
-    __io uint32 DR1;            ///< Data register 1
-    __io uint32 DR2;            ///< Data register 2
-    __io uint32 DR3;            ///< Data register 3
-    __io uint32 DR4;            ///< Data register 4
-    __io uint32 DR5;            ///< Data register 5
-    __io uint32 DR6;            ///< Data register 6
-    __io uint32 DR7;            ///< Data register 7
-    __io uint32 DR8;            ///< Data register 8
-    __io uint32 DR9;            ///< Data register 9
-    __io uint32 DR10;           ///< Data register 10
-    __io uint32 RTCCR;          ///< RTC control register
-    __io uint32 CR;             ///< Control register
-    __io uint32 CSR;            ///< Control and status register
-#ifdef STM32_HIGH_DENSITY
-    const uint32 RESERVED2;     ///< Reserved
-    const uint32 RESERVED3;     ///< Reserved
-    __io uint32 DR11;           ///< Data register 11
-    __io uint32 DR12;           ///< Data register 12
-    __io uint32 DR13;           ///< Data register 13
-    __io uint32 DR14;           ///< Data register 14
-    __io uint32 DR15;           ///< Data register 15
-    __io uint32 DR16;           ///< Data register 16
-    __io uint32 DR17;           ///< Data register 17
-    __io uint32 DR18;           ///< Data register 18
-    __io uint32 DR19;           ///< Data register 19
-    __io uint32 DR20;           ///< Data register 20
-    __io uint32 DR21;           ///< Data register 21
-    __io uint32 DR22;           ///< Data register 22
-    __io uint32 DR23;           ///< Data register 23
-    __io uint32 DR24;           ///< Data register 24
-    __io uint32 DR25;           ///< Data register 25
-    __io uint32 DR26;           ///< Data register 26
-    __io uint32 DR27;           ///< Data register 27
-    __io uint32 DR28;           ///< Data register 28
-    __io uint32 DR29;           ///< Data register 29
-    __io uint32 DR30;           ///< Data register 30
-    __io uint32 DR31;           ///< Data register 31
-    __io uint32 DR32;           ///< Data register 32
-    __io uint32 DR33;           ///< Data register 33
-    __io uint32 DR34;           ///< Data register 34
-    __io uint32 DR35;           ///< Data register 35
-    __io uint32 DR36;           ///< Data register 36
-    __io uint32 DR37;           ///< Data register 37
-    __io uint32 DR38;           ///< Data register 38
-    __io uint32 DR39;           ///< Data register 39
-    __io uint32 DR40;           ///< Data register 40
-    __io uint32 DR41;           ///< Data register 41
-    __io uint32 DR42;           ///< Data register 42
-#endif
+    __IO uint32 RESERVED1;      ///< Reserved
+    __IO uint32 DR1;            ///< Data register 1
+    __IO uint32 DR2;            ///< Data register 2
+    __IO uint32 DR3;            ///< Data register 3
+    __IO uint32 DR4;            ///< Data register 4
+    __IO uint32 DR5;            ///< Data register 5
+    __IO uint32 DR6;            ///< Data register 6
+    __IO uint32 DR7;            ///< Data register 7
+    __IO uint32 DR8;            ///< Data register 8
+    __IO uint32 DR9;            ///< Data register 9
+    __IO uint32 DR10;           ///< Data register 10
+    __IO uint32 RTCCR;          ///< RTC control register
+    __IO uint32 CR;             ///< Control register
+    __IO uint32 CSR;            ///< Control and status register
+    __IO uint32 RESERVED2;     ///< Reserved
+    __IO uint32 RESERVED3;     ///< Reserved
+    __IO uint32 DR11;           ///< Data register 11
+    __IO uint32 DR12;           ///< Data register 12
+    __IO uint32 DR13;           ///< Data register 13
+    __IO uint32 DR14;           ///< Data register 14
+    __IO uint32 DR15;           ///< Data register 15
+    __IO uint32 DR16;           ///< Data register 16
+    __IO uint32 DR17;           ///< Data register 17
+    __IO uint32 DR18;           ///< Data register 18
+    __IO uint32 DR19;           ///< Data register 19
+    __IO uint32 DR20;           ///< Data register 20
+    __IO uint32 DR21;           ///< Data register 21
+    __IO uint32 DR22;           ///< Data register 22
+    __IO uint32 DR23;           ///< Data register 23
+    __IO uint32 DR24;           ///< Data register 24
+    __IO uint32 DR25;           ///< Data register 25
+    __IO uint32 DR26;           ///< Data register 26
+    __IO uint32 DR27;           ///< Data register 27
+    __IO uint32 DR28;           ///< Data register 28
+    __IO uint32 DR29;           ///< Data register 29
+    __IO uint32 DR30;           ///< Data register 30
+    __IO uint32 DR31;           ///< Data register 31
+    __IO uint32 DR32;           ///< Data register 32
+    __IO uint32 DR33;           ///< Data register 33
+    __IO uint32 DR34;           ///< Data register 34
+    __IO uint32 DR35;           ///< Data register 35
+    __IO uint32 DR36;           ///< Data register 36
+    __IO uint32 DR37;           ///< Data register 37
+    __IO uint32 DR38;           ///< Data register 38
+    __IO uint32 DR39;           ///< Data register 39
+    __IO uint32 DR40;           ///< Data register 40
+    __IO uint32 DR41;           ///< Data register 41
+    __IO uint32 DR42;           ///< Data register 42
 } bkp_reg_map;
 
 /** Backup peripheral register map base pointer. */
-#define BKP_BASE                        ((struct bkp_reg_map*)0x40006C00)
+#define BKP                        ((struct bkp_reg_map*)0x40024000)
 
-/** Backup peripheral device type. */
-typedef struct bkp_dev {
-    bkp_reg_map *regs; /**< Register map */
-} bkp_dev;
-
-extern const bkp_dev *BKP;
 
 /*
  * Register bit definitions
@@ -153,9 +146,36 @@ extern const bkp_dev *BKP;
  * Convenience functions
  */
 
-void bkp_init(void);
-void bkp_enable_writes(void);
-void bkp_disable_writes(void);
+/**
+ * @brief Initialize backup interface.
+ *
+ * Enables the power and backup interface clocks, and resets the
+ * backup device.
+ */
+__always_inline void bkp_init(void) {
+    /* Don't call pwr_init(), or you'll reset the device.
+	 * We just need the clock. */
+    rcc_clk_enable(RCC_PWR);
+    //rcc_clk_enable(RCC_BKP);
+    //rcc_reset_dev(RCC_BKP);
+}
+
+/**
+ * Enable write access to the backup registers.  Backup interface must
+ * be initialized for subsequent register writes to work.
+ * @see bkp_init()
+ */
+__always_inline void bkp_enable_writes(void) {
+    *bb_perip(&PWR->CR, PWR_CR_DBP_BIT) = 1;
+}
+
+/**
+ * Disable write access to the backup registers.
+ */
+__always_inline void bkp_disable_writes(void) {
+    *bb_perip(&PWR->CR, PWR_CR_DBP_BIT) = 0;
+}
+
 uint16 bkp_read(uint8 reg);
 void bkp_write(uint8 reg, uint16 val);
 
